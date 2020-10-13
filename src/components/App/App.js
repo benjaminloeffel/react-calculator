@@ -27,13 +27,15 @@ class App extends Component {
         clear: "C",
       },
       inputValue: null,
-      outputValue: 0,
       currentOperator: null,
-      tempValue: null,
+      outputValue: 0,
+      history: [],
     };
 
     this.handleClick = this.handleClick.bind(this);
     this.handleClearButton = this.handleClearButton.bind(this);
+    this.handleEqualsButton = this.handleEqualsButton.bind(this);
+    this.handleDecimalButton = this.handleDecimalButton.bind(this);
   }
 
   handleClick = (e) => {
@@ -62,6 +64,12 @@ class App extends Component {
       case "divide":
         this.handleOperatorButton(e.target.value);
         break;
+      case "equals":
+        this.handleEqualsButton();
+        break;
+      case "decimal":
+        this.handleDecimalButton();
+        break;
       default:
         console.warn("There is no functionality for button:", e.target.id);
     }
@@ -73,7 +81,6 @@ class App extends Component {
       inputValue: null,
       outputValue: 0,
       currentOperator: null,
-      tempValue: null,
     });
   };
 
@@ -89,19 +96,53 @@ class App extends Component {
   };
 
   handleOperatorButton = (operator) => {
-    // Do Operator Calculations
+    if(this.state.outputValue && this.state.currentOperator) {
+      this.setState({outputValue: this.calculate(this.state.outputValue, this.state.inputValue, this.state.currentOperator)});
+    } else {
+      this.setState({outputValue: this.state.inputValue});
+    }
+
+    this.setState({currentOperator: operator});
+    this.setState({inputValue: 0});
   };
+
+  handleEqualsButton = () => {
+    this.setState({outputValue: this.calculate(this.state.outputValue, this.state.inputValue, this.state.currentOperator)})
+  }
+
+  handleDecimalButton = () => {
+    console.log("Decimal Button pressed");
+  }
+
+  calculate(value1, value2, operator) {
+    let result = null;
+
+    switch(operator) {
+      case "+":
+        result = value1 + value2;
+        break;
+      case "-":
+        result = value1 - value2;
+        break;
+      case "*":
+        result = value1 * value2;
+        break;
+      case "/":
+        result = value1 / value2;
+        break;
+      default:
+        console.error("Something went wrong trying to calculate!");
+    }
+
+    return result;
+  }
 
   render() {
     return (
       <div className="App">
-        <Display
-          value={
-            this.state.inputValue === null
-              ? this.state.outputValue
-              : this.state.inputValue
-          }
-        />
+        <p>Input Value: {this.state.inputValue}</p>
+        <p>Operator: {this.state.currentOperator}</p>
+        <p>Result: {this.state.outputValue}</p>
         <button onClick={this.handleClick}>Test</button>
         {Object.entries(this.state.buttons).map(([key, value]) => {
           return (
